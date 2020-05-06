@@ -34,7 +34,7 @@ pacman -S reflector --noconfirm --needed
 reflector --verbose --latest 50 --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Syu --noconfirm base-devel git sudo --needed
 sed -i '/MAKEFLAGS=/s/^#//g' /etc/makepkg.conf
-sed -i "/MAKEFLAGS/s/-j[0-9]+/-j$(($(nproc)-1))/g" /etc/makepkg.conf
+sed -i "/MAKEFLAGS/s/-j[0-9]*/-j$(($(nproc)-1))/g" /etc/makepkg.conf
 
 # create and setup builduser
 useradd -m builduser
