@@ -13,7 +13,9 @@ Build an AUR pagkage:
 docker run -it -e REPO='glogg' jojii/buildaur:latest
 ```
 
-This will compile tha AUR package 'glogg'. You can replace it with any other AUR package
+This will compile tha AUR package 'glogg'. You can replace it with any other AUR package.<br>
+
+To install the package on your Arch installation, use `pacman -U <package>.pkg.tar.xz`. If you used DataManager to upload the built package, you have to download the package first.
 
 # DataManager
 This docker images supports uploading the compiled package to a [DataManagerServer](https://github.com/DataManager-Go/DataManagerServer) (an alternative cloud storage system with support for filesharing). To use it, you have to add some envars to the docker command:
