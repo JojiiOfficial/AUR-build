@@ -1,4 +1,4 @@
-FROM archlinux:latest
+FROM jojii/archdevel:v1.2
 
 WORKDIR /app
 

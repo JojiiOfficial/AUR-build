@@ -11,16 +11,21 @@ useDmanager=false
 
 set +x
 if [ ! -z "$DM_URL" ] && [ ! -z "$DM_TOKEN" ] && [ ! -z "$DM_USER" ]; then
+	echo "using DManager1!!!1"
 	useDmanager=true
 fi
 set -x
 
-pacman -Sy jq wget --noconfirm --needed
+pacman -Syu --noconfirm
+pacman -S jq wget --noconfirm --needed
 
 # download and setup dataManager client
-if [ $useDmanager ];then
-	wget https://github.com/DataManager-Go/DataManagerCLI/releases/download/v1.4.1/manager_linux -O /usr/bin/manager
-	chmod u+x /usr/bin/manager
+if [ $useDmanager ]; then
+	if [ ! -f "/usr/local/bin/manager" ]; then
+		wget https://github.com/DataManager-Go/DataManagerCLI/releases/download/v1.4.1/manager_linux -O /usr/bin/manager
+		chmod u+x /usr/bin/manager
+	fi
+
 	set +x
 	manager setup $DM_URL -y --token "$DM_TOKEN" --user "$DM_USER"
 	set -x
@@ -37,7 +42,6 @@ sed -i '/MAKEFLAGS=/s/^#//g' /etc/makepkg.conf
 sed -i "/MAKEFLAGS/s/-j[0-9]*/-j$(($(nproc)-1))/g" /etc/makepkg.conf
 
 # create and setup builduser
-useradd -m builduser
 SUDOERS="builduser ALL=(ALL) NOPASSWD: ALL"
 echo $SUDOERS > /etc/sudoers.d/builduser
 
@@ -58,6 +62,6 @@ binFile="$buildDir"$(ls -t $buildDir  | grep -E "pkg.tar.xz$"  | head -n1)
 echo $binFile
 
 # upload built package to dmanager if desired
-if [ $useDmanager ];then
+if [ $useDmanager == true ];then
 	manager upload $binFile --public
 fi
