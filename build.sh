@@ -6,30 +6,9 @@ if [ -z "$REPO" ];then
 	echo "REPO envar not set!"
 fi
 
-# useDmanager is true if the bulilt binary should be uploaded to a datamanager server
-useDmanager=false
-
-set +x
-if [ ! -z "$DM_URL" ] && [ ! -z "$DM_TOKEN" ] && [ ! -z "$DM_USER" ]; then
-	echo "using DManager1!!!1"
-	useDmanager=true
-fi
-set -x
 
 pacman -Syu --noconfirm
 pacman -S jq wget --noconfirm --needed
-
-# download and setup dataManager client
-if [ $useDmanager ]; then
-	if [ ! -f "/usr/local/bin/manager" ]; then
-		wget https://github.com/DataManager-Go/DataManagerCLI/releases/download/v1.4.1/manager_linux -O /usr/bin/manager
-		chmod u+x /usr/bin/manager
-	fi
-
-	set +x
-	manager setup $DM_URL -y --token "$DM_TOKEN" --user "$DM_USER"
-	set -x
-fi
 
 # retrieve AUR build files
 URLPATH="https://aur.archlinux.org"$(curl -sq https://aur.archlinux.org/rpc/\?v\=5\&type\=info\&by\=name\&arg\=$REPO  | jq '.results[0].URLPath' -r)
@@ -61,7 +40,7 @@ popd > /dev/null
 binFile="$buildDir"$(ls -t $buildDir  | grep -E "pkg.tar.xz$"  | head -n1)
 echo $binFile
 
-# upload built package to dmanager if desired
-if [ $useDmanager == true ];then
-	manager upload $binFile --public
-fi
+finalFile=/home/builduser/$REPO".pkg.tar.xz"
+echo $finalFile
+
+mv $binFile $finalFile
