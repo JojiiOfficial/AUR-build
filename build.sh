@@ -4,8 +4,8 @@ set -e
 
 if [ -z "$REPO" ];then
 	echo "REPO envar not set!"
+	exit 1
 fi
-
 
 pacman -Syu --noconfirm
 pacman -S jq wget --noconfirm --needed
@@ -23,6 +23,10 @@ sed -i "/MAKEFLAGS/s/-j[0-9]*/-j$(($(nproc)-1))/g" /etc/makepkg.conf
 # create and setup builduser
 SUDOERS="builduser ALL=(ALL) NOPASSWD: ALL"
 echo $SUDOERS > /etc/sudoers.d/builduser
+chown builduser:builduser /home/builduser -R
+
+su -c 'mkdir /home/builduser/.gnupg/ -p' builduser
+su -c 'echo keyserver keyserver.ubuntu.com >> /home/builduser/.gnupg/gpg.conf' builduser
 
 # download and extract build files
 pushd /home/builduser > /dev/null
