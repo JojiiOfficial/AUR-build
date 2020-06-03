@@ -11,9 +11,18 @@ pacman -Syu --noconfirm
 
 # setup pacman and makepkg
 reflector --verbose --latest 50 --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syu --noconfirm base-devel git sudo --needed
+pacman -Syu --noconfirm base-devel git sudo ccache --needed
 sed -i '/MAKEFLAGS=/s/^#//g' /etc/makepkg.conf
 sed -i "/MAKEFLAGS/s/-j[0-9]*/-j$(($(nproc)))/g" /etc/makepkg.conf
+
+# setup ccache
+if [ "$USE_CCACHE" == "true" ]; then
+    echo using ccache!
+
+    sed -i "/BUILDENV/s/\!ccache/ccache/g" /etc/makepkg.conf
+else
+    export CCACHE_DISABLE=1
+fi
 
 # create and setup builduser
 SUDOERS="builduser ALL=(ALL) NOPASSWD: ALL"
