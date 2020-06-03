@@ -18,7 +18,7 @@ sed -i "/MAKEFLAGS/s/-j[0-9]*/-j$(($(nproc)))/g" /etc/makepkg.conf
 # setup ccache
 if [ "$USE_CCACHE" == "true" ]; then
     echo using ccache!
-
+    chown builduser:builduser /ccache -R
     sed -i "/BUILDENV/s/\!ccache/ccache/g" /etc/makepkg.conf
 else
     export CCACHE_DISABLE=1
