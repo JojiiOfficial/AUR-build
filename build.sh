@@ -57,7 +57,7 @@ popd > /dev/null
 binFile="$buildDir"$(ls -t $buildDir  | grep -E "pkg.tar.zst$|pkg.tar.xz$"  | head -n1)
 echo Binfile: $binFile
 
-finalFile=/home/builduser/$binFile
-mv $binFile $finalFile
+finalFile=$(basename $binFile)
+mv $binFile /home/builduser/$finalFile
 
 echo $finalFile >> /home/builduser/resInfo
