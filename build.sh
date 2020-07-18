@@ -7,6 +7,7 @@ if [ -z "$REPO" ];then
 	exit 1
 fi
 
+pacman-key --init
 pacman -Syu --noconfirm
 
 # setup pacman and makepkg
@@ -42,7 +43,10 @@ chown builduser $REPO -R
 buildDir=/home/builduser/$REPO/
 pushd $buildDir > /dev/null
 su -c '. PKGBUILD; yay -S ${makedepends[@]} ${depends[@]} --noconfirm --needed' builduser
-su -c 'makepkg -src --noconfirm' builduser
+if [ ! -z "$(cat /home/builduser/vscodium-bin/PKGBUILD | grep validpgpkeys)" ];then
+	su -c '. PKGBUILD; pacman-key --recv-keys ${validpgpkeys[@]}'
+fi
+su -c 'GNUPGHOME=/etc/pacman.d/gnupg makepkg -src --noconfirm' builduser
 popd > /dev/null
 popd > /dev/null
 

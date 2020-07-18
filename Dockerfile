@@ -1,4 +1,4 @@
-FROM jojii/archdevel:v2.3
+FROM jojii/archdevel:v2.4
 
 WORKDIR /app
 
