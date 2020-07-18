@@ -43,9 +43,13 @@ chown builduser $REPO -R
 buildDir=/home/builduser/$REPO/
 pushd $buildDir > /dev/null
 su -c '. PKGBUILD; yay -S ${makedepends[@]} ${depends[@]} --noconfirm --needed' builduser
-if [ ! -z "$(cat /home/builduser/vscodium-bin/PKGBUILD | grep validpgpkeys)" ];then
+if [ ! -z "$(cat PKGBUILD | grep validpgpkeys)" ];then
 	su -c '. PKGBUILD; pacman-key --recv-keys ${validpgpkeys[@]}'
 fi
+
+su -c '. PKGBUILD; echo $pkgname >> /home/builduser/resInfo' builduser
+su -c '. PKGBUILD; echo $pkgver >> /home/builduser/resInfo' builduser
+
 su -c 'GNUPGHOME=/etc/pacman.d/gnupg makepkg -src --noconfirm' builduser
 popd > /dev/null
 popd > /dev/null
@@ -53,7 +57,7 @@ popd > /dev/null
 binFile="$buildDir"$(ls -t $buildDir  | grep -E "pkg.tar.zst$|pkg.tar.xz$"  | head -n1)
 echo Binfile: $binFile
 
-finalFile=/home/builduser/$REPO".pkg.tar.xz"
-echo $finalFile
-
+finalFile=/home/builduser/$binFile
 mv $binFile $finalFile
+
+echo $finalFile >> /home/builduser/resInfo
