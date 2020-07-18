@@ -46,8 +46,8 @@ su -c 'makepkg -src --noconfirm' builduser
 popd > /dev/null
 popd > /dev/null
 
-binFile="$buildDir"$(ls -t $buildDir  | grep -E "pkg.tar.xz$"  | head -n1)
-echo $binFile
+binFile="$buildDir"$(ls -t $buildDir  | grep -E "pkg.tar.zst$|pkg.tar.xz$"  | head -n1)
+echo Binfile: $binFile
 
 finalFile=/home/builduser/$REPO".pkg.tar.xz"
 echo $finalFile
