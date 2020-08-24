@@ -11,7 +11,14 @@ pacman-key --init
 pacman -Syu --noconfirm
 
 # setup pacman and makepkg
-reflector --verbose --latest 50 --sort rate --save /etc/pacman.d/mirrorlist
+if [ -z "$MIRR" ]; then
+    reflector --verbose --latest 50 --sort rate --save /etc/pacman.d/mirrorlist
+else
+    mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist_old
+    echo $MIRR > /etc/pacman.d/mirrorlist
+    cat /etc/pacman.d/mirrorlist_old >> /etc/pacman.d/mirrorlist
+fi
+
 pacman -Syu --noconfirm base-devel git sudo ccache pigz pbzip2 --needed
 sed -i '/MAKEFLAGS=/s/^#//g' /etc/makepkg.conf
 sed -i "/MAKEFLAGS/s/-j[0-9]*/-j$(($(nproc)+1))/g" /etc/makepkg.conf
@@ -43,8 +50,9 @@ chown builduser $REPO -R
 buildDir=/home/builduser/$REPO/
 pushd $buildDir > /dev/null
 su -c '. PKGBUILD; yay -S ${makedepends[@]} ${depends[@]} --noconfirm --needed' builduser
+
 if [ ! -z "$(cat PKGBUILD | grep validpgpkeys)" ];then
-	su -c '. PKGBUILD; pacman-key --recv-keys ${validpgpkeys[@]}'
+    su -c '. PKGBUILD; for i in ${validpgpkeys[@]}; do pacman-key --recv-key $i;done'
 fi
 
 su -c '. PKGBUILD; echo $pkgname >> /home/builduser/resInfo' builduser
@@ -53,6 +61,5 @@ su -c '. PKGBUILD; echo $pkgver >> /home/builduser/resInfo' builduser
 # bulid the package
 su -c 'GNUPGHOME=/etc/pacman.d/gnupg makepkg -src --noconfirm' builduser
 
-sleep 1
 ls /home/builduser/pkgdest
 su -c 'ls /home/builduser/pkgdest >> /home/builduser/resInfo' builduser
